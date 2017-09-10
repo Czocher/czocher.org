@@ -1,0 +1,6 @@
+baseURL = "https://czocher.org/"
+languageCode = "en-us"
+title = "Scary IT Things"
+theme = "czocher"
+PygmentsStyle = "murphy"
+PygmentsCodeFences = true

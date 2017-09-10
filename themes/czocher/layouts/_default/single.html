@@ -1,0 +1,15 @@
+{{ define "content" -}}
+<article>
+  <header>
+    <time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "02 Jan 2006" }}</time>
+    <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
+    <p>{{ .Summary }}</p>
+  </header>
+
+  {{ .Content }}
+
+  <small>Tags: {{ delimit .Params.tags ", " }}</small>
+
+</article>
+{{- end }}
+{{/* vim: set filetype=gohtmltmpl: */}}

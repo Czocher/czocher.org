@@ -1,0 +1,35 @@
+{{ define "content" -}}
+
+<section class="list">
+  <ul>
+    {{ range (.Paginator 10).Pages }}
+      <li>
+        <time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "02 Jan 2006" }}</time>
+        <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+        <p>
+          <p>{{ .Summary }}</p>
+          <a href="{{ .RelPermalink }}" id="read-more-button">Read more...</a>
+        </p>
+      </li>
+    {{ end }}
+  </ul>
+
+  <nav class="pagination">
+    {{ if .Paginator.HasPrev }}
+    <a href="{{ .Paginator.Prev.URL }}" class="previous">&laquo;</a>
+    {{ else }}
+    <span class="next ">&laquo;</span>
+    {{ end }}
+
+    <span class="page_number ">Page: {{ .Paginator.PageNumber }} of {{ .Paginator.TotalPages }}</span>
+
+    {{ if .Paginator.HasNext }}
+    <a href="{{ .Paginator.Next.URL }}" class="next">&raquo;</a>
+    {{ else }}
+    <span class="next ">&raquo;</span>
+    {{ end }}
+  </nav>
+
+</section>
+{{- end }}
+{{/* vim: set filetype=gohtmltmpl: */}}
