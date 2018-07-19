@@ -4,32 +4,71 @@ tags: ["linux", "environment"]
 date: 2018-07-18
 ---
 
-Being a fan of the [decentralized Internet principle](https://www.wired.com/story/the-decentralized-internet-is-here-with-some-glitches/) and taking into account the recent [takeover of GitHub by Microsoft](https://www.independent.co.uk/news/business/news/microsoft-github-takeover-acquisition-software-development-code-latest-a8382456.html), I decided I want to host my own version control software platform, independent from any major provider (i.e. GitHub, Bitbucket and GitLab) with all the functionality of a modern software development environment which includes a [Continuous Integration](https://en.wikipedia.org/wiki/Continuous_integration) pipeline. My choice came down to [Gitea](https://gitea.io/) with [Drone](https://drone.io/) for the continuous integration purposes, installed on my [Synology DS216+II](https://www.synology.com/en-global/products/DS216).
+Being a fan of the [decentralized Internet
+principle](https://www.wired.com/story/the-decentralized-internet-is-here-with-some-glitches/)
+and taking into account the recent [takeover of GitHub by
+Microsoft](https://www.independent.co.uk/news/business/news/microsoft-github-takeover-acquisition-software-development-code-latest-a8382456.html),
+I decided I want to host my own version control software platform, independent
+from any major provider (i.e. GitHub, Bitbucket and GitLab) with all the
+functionality of a modern software development environment which includes a
+[Continuous Integration](https://en.wikipedia.org/wiki/Continuous_integration)
+pipeline. My choice came down to [Gitea](https://gitea.io/) with
+[Drone](https://drone.io/) for the continuous integration purposes, installed on
+my [Synology DS216+II](https://www.synology.com/en-global/products/DS216).
 
 <!--more-->
 
-The major reason for this choice was how small the footprint of both those solutions is. Looking at resource consumption it constantly stays as low as 32 MB of RAM, which is the limiting factor on my equipment. A very big advantage of Gitea is that it implements most of the features of Github, which includes a wiki and issue management. Drone is a nice complement, adding the missing capabilities while also not hogging resources as e.g. [Jenkins](https://jenkins.io/), another popular CI platform, would (also a good choice for less limited environments).
+The major reason for this choice was how small the footprint of both those
+solutions is. Looking at resource consumption it constantly stays as low as 32
+MB of RAM, which is the limiting factor on my equipment. A very big advantage of
+Gitea is that it implements most of the features of Github, which includes a
+wiki and issue management. Drone is a nice complement, adding the missing
+capabilities while also not hogging resources as e.g.
+[Jenkins](https://jenkins.io/), another popular CI platform, would (also a good
+choice for less limited environments).
 
-The problem was how to install Gitea and Drone on my hardware. There are four possible ways to install additional software on a Synology Disk Station:
+The problem was how to install Gitea and Drone on my hardware. There are four
+possible ways to install additional software on a Synology Disk Station:
 
-1. From the official repositories by the Package Center - not feasible because the only two git servers available there are "Git Server", which is too simple, since it doesn't support pull requests nor any other advanced git workflow mechanisms, and GitLab, which is too resource-heavy for my needs, but may be a good alternative for any person with a more advanced Synology hardware (especially in the RAM department).
-2. From the [SynoCommunity](https://synocommunity.com/) community’s Synology package repository. Unfortunately as of now it does not contain any additional git-server software.
-3. By building and installing by hand (or preferably creating a `spk` package) - it quickly comes down to a troublesome dependency management problem and is hard to deinstall completely.
-4. By installing [Docker](https://www.docker.com/what-docker) and using a container.
+1. From the official repositories by the Package Center - not feasible because
+   the only two git servers available there are "Git Server", which is too
+   simple, since it doesn't support pull requests nor any other advanced git
+   workflow mechanisms, and GitLab, which is too resource-heavy for my needs,
+   but may be a good alternative for any person with a more advanced Synology
+   hardware (especially in the RAM department).
+2. From the [SynoCommunity](https://synocommunity.com/) community’s Synology
+   package repository. Unfortunately as of now it does not contain any
+   additional git-server software.
+3. By building and installing by hand (or preferably creating a `spk` package) -
+   it quickly comes down to a troublesome dependency management problem and is
+   hard to deinstall completely.
+4. By installing [Docker](https://www.docker.com/what-docker) and using a
+   container.
 
-The last, fourth, point seemed the best fit for my needs, since both Gitea and Drone are made to be run in a containerized environment.
+The last, fourth, point seemed the best fit for my needs, since both Gitea and
+Drone are made to be run in a containerized environment.
 
 ### Gitea installation
 
-Installing Gitea was pretty straightforward. Docker could be installed from the official Synology repositories and has a simple, yet functional, interface.
+Installing Gitea was pretty straightforward. Docker could be installed from the
+official Synology repositories and has a simple, yet functional, interface.
 
-{{< figure src="/img/synology-docker.png" link="/img/synology-docker.png" title="Synology Docker GUI" alt="A Synology Docker GUI window" >}}
+{{< figure src="/img/synology-docker.png" link="/img/synology-docker.png"
+title="Synology Docker GUI" alt="A Synology Docker GUI window" >}}
 
-Gitea’s [official Docker image](https://hub.docker.com/r/gitea/gitea/) is available on DockerHub, creating a container from it using the provided GUI is very simple. There are a few things that have to be kept in mind though:
+Gitea’s [official Docker image](https://hub.docker.com/r/gitea/gitea/) is
+available on DockerHub, creating a container from it using the provided GUI is
+very simple. There are a few things that have to be kept in mind though:
 
-1. The ports have to be mapped correctly, i.e. TCP ports `22` and `3000` should be mapped on some host ports to be accessible. In my case it's a `10080` host port mapping for `3000` and `10022` host port mapping for `22`.
-2. The volume for `/data` should be configured, so Gitea won't loose files on reboot.
-3. The `app.ini` file has a few additional options: the `SSH_DOMAIN`, `SSH_PORT`, `SSH_LISTEN_PORT`, `HTTP_PORT`, `ROOT_URL`, should be configured according to needs, but _should contain the IP address of the host, not the hostname_.
+1. The ports have to be mapped correctly, i.e. TCP ports `22` and `3000` should
+   be mapped on some host ports to be accessible. In my case it's a `10080` host
+   port mapping for `3000` and `10022` host port mapping for `22`.
+2. The volume for `/data` should be configured, so Gitea won't loose files on
+   reboot.
+3. The `app.ini` file has a few additional options: the `SSH_DOMAIN`,
+   `SSH_PORT`, `SSH_LISTEN_PORT`, `HTTP_PORT`, `ROOT_URL`, should be configured
+   according to needs, but _should contain the IP address of the host, not the
+   hostname_.
 
 My `server` configuration is as follows:
 ```toml
@@ -45,20 +84,32 @@ OFFLINE_MODE     = true
 ...
 ```
 
-After setting those up and restarting the container, remember to verify if the port mappings are still correct. In my case I had to switch those to `10080` -> `10080` and leave `10022` still mapping to `22`, since the SSH server listening on `10022` did not work and failed with a host verification exception for me.
+After setting those up and restarting the container, remember to verify if the
+port mappings are still correct. In my case I had to switch those to `10080` ->
+`10080` and leave `10022` still mapping to `22`, since the SSH server listening
+on `10022` did not work and failed with a host verification exception for me.
 
 All the other options should be done according to needs.
 
 ### Drone installation
 
-Drone installation is a bit more troublesome than Gitea. The [main Drone image](https://hub.docker.com/r/drone/drone/) can be installed easily with the Synology GUI. I used the following configuration options:
-1. Both TCP ports `8000` (HTTP) and `9000` (GRPC) should be mapped to some host ports. I chose `11080` and `11900` in my case.
-2. The `/var/lib/drone` directory has to be mapped somewhere in the Synology filesystem.
-3. There is a number of environment variables that have to be set: `DRONE_OPEN`, `DRONE_HOST`, `DRONE_GITEA`, `DRONE_GITEA_URL`, `DRONE_GITEA_PRIVATE_MODE`, `DRONE_GITEA_SKIP_VERIFY`, `DRONE_SECRET`. You can read what all of those mean [in the Drone documentation](http://docs.drone.io/installation/) and [configuration for Gitea](http://docs.drone.io/install-for-gitea/).
+Drone installation is a bit more troublesome than Gitea. The [main Drone
+image](https://hub.docker.com/r/drone/drone/) can be installed easily with the
+Synology GUI. I used the following configuration options:
+1. Both TCP ports `8000` (HTTP) and `9000` (GRPC) should be mapped to some host
+   ports. I chose `11080` and `11900` in my case.
+2. The `/var/lib/drone` directory has to be mapped somewhere in the Synology
+   filesystem.
+3. There is a number of environment variables that have to be set: `DRONE_OPEN`,
+   `DRONE_HOST`, `DRONE_GITEA`, `DRONE_GITEA_URL`, `DRONE_GITEA_PRIVATE_MODE`,
+   `DRONE_GITEA_SKIP_VERIFY`, `DRONE_SECRET`. You can read what all of those
+   mean [in the Drone documentation](http://docs.drone.io/installation/) and
+   [configuration for Gitea](http://docs.drone.io/install-for-gitea/).
 
 My config goes as follows:
 ```bash
-# Manages if users can register to Drone by themselves, I have a secure installation so it's 'true' in my case
+# Manages if users can register to Drone by themselves
+# I have a secure installation so it's 'true' in my case
 # See more here: http://readme.drone.io/admin/user-registration/
 DRONE_OPEN=true
 
@@ -81,7 +132,13 @@ DRONE_GITEA_SKIP_VERIFY=true
 DRONE_SECRET={your secret here}
 ```
 
-The last, and hardest step is the [Drone Agent](https://hub.docker.com/r/drone/agent/) installation. It requires access to `/var/run/docker.sock` to spawn the continuous integration pipeline containers. Unfortunately the Synology Docker GUI does not allow this to be selected in the volume configuration, therefore it needs to be done manually from a shell. Here is the correct `docker create` command to spawn the agent, it should be run from a SSH/shell session on Synology:
+The last, and hardest step is the [Drone
+Agent](https://hub.docker.com/r/drone/agent/) installation. It requires access
+to `/var/run/docker.sock` to spawn the continuous integration pipeline
+containers. Unfortunately the Synology Docker GUI does not allow this to be
+selected in the volume configuration, therefore it needs to be done manually
+from a shell. Here is the correct `docker create` command to spawn the agent, it
+should be run from a SSH/shell session on Synology:
 
 ```bash
 sudo docker create -i --name drone-agent -v /var/run/docker.sock:/var/run/docker.sock -e DRONE_SERVER=10.0.0.3:11900 -e DRONE_SECRET="{your secret goes here}" -p 11300:3000/tcp drone/agent:latest
@@ -89,11 +146,15 @@ sudo docker create -i --name drone-agent -v /var/run/docker.sock:/var/run/docker
 
 It maps port `3000` of the container to port `11300` of the host.
 
-After this procedure the new container should be visible in the Docker Synology GUI, but _do not edit it there_ since it will lose the `docker.sock` mapping on every save and will have to be recreated. It can be enabled/disabled in the GUI without a problem though.
+After this procedure the new container should be visible in the Docker Synology
+GUI, but _do not edit it there_ since it will lose the `docker.sock` mapping on
+every save and will have to be recreated. It can be enabled/disabled in the GUI
+without a problem though.
 
 ### Testing the environment
 
-Testing if everything works is as simple as creating a new Gitea repository with a simple `.drone.yml` file e.g.:
+Testing if everything works is as simple as creating a new Gitea repository with
+a simple `.drone.yml` file e.g.:
 ```yaml
 pipeline:
   resolve:
@@ -104,4 +165,7 @@ pipeline:
       status: [ success, failure ]
 ```
 
-then logging into Drone and enabling the repository. Drone should begin the CI pipeline for the project as soon as it notices a change. A change may be forced by doing a `git commit -a --amend` followed by a force push: `git push origin master -f`.
+then logging into Drone and enabling the repository. Drone should begin the CI
+pipeline for the project as soon as it notices a change. A change may be forced
+by doing a `git commit -a --amend` followed by a force push: `git push origin
+master -f`.
