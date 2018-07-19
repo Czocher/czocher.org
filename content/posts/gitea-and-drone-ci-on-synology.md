@@ -12,8 +12,8 @@ The major reason for this choice was how small the footprint of both those solut
 
 The problem was how to install Gitea and Drone on my hardware. There are four possible ways to install additional software on a Synology Disk Station:
 
-1. From the official repositories by the Package Center - not feasible because the only two git server available there are "Git Server", which is too simple, since it doesn't support pull requests nor any other advanced git workflow mechanisms, and GitLab, which is too resource heavy for my needs, but may be a good alternative for any person with a more advanced Synology hardware (especially in the RAM department).
-2. From the [SynoCommunity](https://synocommunity.com/) community Synology package repository. Unfortunately as of now it does not contain any additional git-server software.
+1. From the official repositories by the Package Center - not feasible because the only two git servers available there are "Git Server", which is too simple, since it doesn't support pull requests nor any other advanced git workflow mechanisms, and GitLab, which is too resource-heavy for my needs, but may be a good alternative for any person with a more advanced Synology hardware (especially in the RAM department).
+2. From the [SynoCommunity](https://synocommunity.com/) community’s Synology package repository. Unfortunately as of now it does not contain any additional git-server software.
 3. By building and installing by hand (or preferably creating a `spk` package) - it quickly comes down to a troublesome dependency management problem and is hard to deinstall completely.
 4. By installing [Docker](https://www.docker.com/what-docker) and using a container.
 
@@ -25,11 +25,11 @@ Installing Gitea was pretty straightforward. Docker could be installed from the 
 
 {{< figure src="/img/synology-docker.png" link="/img/synology-docker.png" title="Synology Docker GUI" alt="A Synology Docker GUI window" >}}
 
-Gita [the official Docker image](https://hub.docker.com/r/gitea/gitea/) is available on DockerHub, creating a container from it using the provided GUI is very simple. There are a few things that have to be kept in mind though:
+Gitea’s [official Docker image](https://hub.docker.com/r/gitea/gitea/) is available on DockerHub, creating a container from it using the provided GUI is very simple. There are a few things that have to be kept in mind though:
 
-1. The ports have to be mapped correctly i.e. TCP ports `22` and `3000` should be mapped on some host ports to be accessible. In my case it's a `10080` host port mapping for `3000` and `10022` host port mapping for `22`.
+1. The ports have to be mapped correctly, i.e. TCP ports `22` and `3000` should be mapped on some host ports to be accessible. In my case it's a `10080` host port mapping for `3000` and `10022` host port mapping for `22`.
 2. The volume for `/data` should be configured, so Gitea won't loose files on reboot.
-3. The `app.ini` file have a few additional options: the `SSH_DOMAIN`, `SSH_PORT`, `SSH_LISTEN_PORT`, `HTTP_PORT`, `ROOT_URL`, should be configured according to needs, but _should contain the IP address of the host, not the hostname_.
+3. The `app.ini` file has a few additional options: the `SSH_DOMAIN`, `SSH_PORT`, `SSH_LISTEN_PORT`, `HTTP_PORT`, `ROOT_URL`, should be configured according to needs, but _should contain the IP address of the host, not the hostname_.
 
 My `server` configuration is as follows:
 ```toml
@@ -45,16 +45,16 @@ OFFLINE_MODE     = true
 ...
 ```
 
-After setting those up and restarting the container remember to verify if the port mappings are still correct. In my case I had to switch those to `10080` -> `10080` and leave `10022` still mapping to `22`, since the SSH server listening on `10022` did not work and failed with a host verification exception for me.
+After setting those up and restarting the container, remember to verify if the port mappings are still correct. In my case I had to switch those to `10080` -> `10080` and leave `10022` still mapping to `22`, since the SSH server listening on `10022` did not work and failed with a host verification exception for me.
 
 All the other options should be done according to needs.
 
 ### Drone installation
 
-Drone installation is a bit more troublesome than Gitea. The [main Drone image](https://hub.docker.com/r/drone/drone/) can be installed easily with the Synology GUI. It the following configuration options:
+Drone installation is a bit more troublesome than Gitea. The [main Drone image](https://hub.docker.com/r/drone/drone/) can be installed easily with the Synology GUI. I used the following configuration options:
 1. Both TCP ports `8000` (HTTP) and `9000` (GRPC) should be mapped to some host ports. I chose `11080` and `11900` in my case.
 2. The `/var/lib/drone` directory has to be mapped somewhere in the Synology filesystem.
-3. There is a number of environmental variables that have to be set: `DRONE_OPEN`, `DRONE_HOST`, `DRONE_GITEA`, `DRONE_GITEA_URL`, `DRONE_GITEA_PRIVATE_MODE`, `DRONE_GITEA_SKIP_VERIFY`, `DRONE_SECRET`. You can read what all of those mean [in the Drone documentation](http://docs.drone.io/installation/) and [configuration for Gitea](http://docs.drone.io/install-for-gitea/).
+3. There is a number of environment variables that have to be set: `DRONE_OPEN`, `DRONE_HOST`, `DRONE_GITEA`, `DRONE_GITEA_URL`, `DRONE_GITEA_PRIVATE_MODE`, `DRONE_GITEA_SKIP_VERIFY`, `DRONE_SECRET`. You can read what all of those mean [in the Drone documentation](http://docs.drone.io/installation/) and [configuration for Gitea](http://docs.drone.io/install-for-gitea/).
 
 My config goes as follows:
 ```bash
@@ -89,7 +89,7 @@ sudo docker create -i --name drone-agent -v /var/run/docker.sock:/var/run/docker
 
 It maps port `3000` of the container to port `11300` of the host.
 
-After this procedure the new container should be visible in the Docker Synology GUI, but _do not edit it there_ since it will loose the `docker.sock` mapping on every save and will have to be recreated. It can be enabled/disabled in the GUI without a problem though.
+After this procedure the new container should be visible in the Docker Synology GUI, but _do not edit it there_ since it will lose the `docker.sock` mapping on every save and will have to be recreated. It can be enabled/disabled in the GUI without a problem though.
 
 ### Testing the environment
 
