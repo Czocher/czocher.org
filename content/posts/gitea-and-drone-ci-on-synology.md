@@ -75,7 +75,7 @@ My `server` configuration is as follows:
 [server]
 SSH_DOMAIN       = 10.0.0.3
 HTTP_PORT        = 10080
-ROOT_URL         = http://10.0.0.3:10080/
+ROOT_URL         = "http://10.0.0.3:10080/"
 DISABLE_SSH      = false
 SSH_PORT         = 10022
 SSH_LISTEN_PORT  = 10022
