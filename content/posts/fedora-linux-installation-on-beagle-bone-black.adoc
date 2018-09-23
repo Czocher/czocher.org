@@ -1,5 +1,5 @@
 ---
-title: "Fedora Linux Installation on Beagle Bone Black"
+title: Fedora Linux Installation on Beagle Bone Black
 tags: ["linux", "electronics"]
 date: 2017-02-01
 ---
@@ -12,7 +12,7 @@ it.
 <!--more-->
 
 The first step is to download a suitable Fedora spin. It has to be one of the
-`armhf` ones available on the [official sites](https://arm.fedoraproject.org/).
+`armhf` ones available on the https://arm.fedoraproject.org/[official sites].
 I've chosen the minimal distribution but any will do really. Remember to check
 the checksum and the signature of the download:
 
@@ -56,7 +56,7 @@ supported targets check the
 `/usr/share/doc/fedora-arm-installer/SUPPORTED-BOARDS` file.
 
 If you do not use Fedora but want to write a image to the SD card you can simply
-view the [source code](https://github.com/sorki/fedora-arm-installer) of the
+view the https://github.com/sorki/fedora-arm-installer[source code] of the
 `fedora-arm-installer` -- it is a normal shell script.
 
 After the script finishes, the SD card should be bootable, but to successfully
